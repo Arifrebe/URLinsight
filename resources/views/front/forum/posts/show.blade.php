@@ -8,16 +8,17 @@
     <div class="row justify-content-center">
         <div class="col-lg-9">
 
-            {{-- Kembali ke forum --}}
+            {{-- Tombol kembali --}}
             <a href="{{ route('forum.posts.index') }}"
                class="text-decoration-none text-muted small">
-                &larr; Kembali ke Forum
+                <i class="bi bi-arrow-left"></i> Kembali ke Forum
             </a>
 
             {{-- Detail postingan --}}
             <div class="card border-0 shadow-sm mt-4 mb-4">
                 <div class="card-body p-4 p-md-5">
 
+                    {{-- Kategori dan tanggal --}}
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                         <span class="badge bg-primary-subtle text-primary">
                             {{ $post->category->name }}
@@ -28,10 +29,12 @@
                         </small>
                     </div>
 
+                    {{-- Judul --}}
                     <h2 class="fw-bold mb-3">
                         {{ $post->title }}
                     </h2>
 
+                    {{-- Penulis --}}
                     <div class="text-muted small mb-4">
                         Oleh <strong class="text-dark">{{ $post->user->name }}</strong>
                     </div>
@@ -39,7 +42,8 @@
                     <hr>
 
                     {{-- Isi postingan --}}
-                    <div class="mt-4" style="white-space: pre-line; line-height: 1.8;">
+                    <div class="mt-4"
+                         style="white-space: pre-line; line-height: 1.8;">
                         {{ $post->content }}
                     </div>
 
@@ -58,9 +62,12 @@
                         </span>
                     </div>
 
-                    {{-- Aksi pemilik atau admin --}}
+                    {{-- Aksi pemilik postingan atau admin --}}
                     @auth
-                        @if (auth()->id() === $post->user_id || auth()->user()->role === 'admin')
+                        @if (
+                            (int) auth()->id() === (int) $post->user_id
+                            || auth()->user()->role === 'admin'
+                        )
                             <hr class="my-4">
 
                             <div class="d-flex gap-2">
@@ -75,7 +82,8 @@
                                     @csrf
                                     @method('DELETE')
 
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm">
                                         <i class="bi bi-trash"></i> Hapus
                                     </button>
                                 </form>
@@ -88,75 +96,248 @@
 
             {{-- Bagian komentar --}}
             <div class="mb-4">
+
                 <h4 class="fw-bold mb-3">
                     Diskusi dan Komentar
-                    <span class="text-muted fs-6">({{ $post->comments_count }})</span>
+                    <span class="text-muted fs-6">
+                        ({{ $post->comments_count }})
+                    </span>
                 </h4>
 
+                {{-- Pesan berhasil --}}
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show">
+                        {{ session('success') }}
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                {{-- Pesan error --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <strong>Terjadi kesalahan:</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                {{-- Daftar komentar utama --}}
                 @forelse ($post->comments as $comment)
+
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-body p-3 p-md-4">
 
-                            <div class="d-flex justify-content-between flex-wrap gap-2">
-                                <strong>{{ $comment->user->name }}</strong>
+                            {{-- Informasi komentar --}}
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <strong>
+                                    <i class="bi bi-person-circle me-1"></i>
+                                    {{ $comment->user->name }}
+                                </strong>
 
                                 <small class="text-muted">
                                     {{ $comment->created_at->diffForHumans() }}
                                 </small>
                             </div>
 
-                            <p class="mt-3 mb-0" style="white-space: pre-line;">
+                            {{-- Isi komentar --}}
+                            <p class="mt-3 mb-2"
+                               style="white-space: pre-line;">
                                 {{ $comment->content }}
                             </p>
 
-                            {{-- Balasan --}}
-                            @foreach ($comment->replies as $reply)
-                                <div class="border-start border-3 ps-3 ms-3 mt-3">
-                                    <div class="d-flex justify-content-between flex-wrap gap-2">
-                                        <strong class="small">
-                                            {{ $reply->user->name }}
-                                        </strong>
+                            {{-- Aksi komentar utama --}}
+                            <div class="d-flex align-items-center gap-3">
 
-                                        <small class="text-muted">
-                                            {{ $reply->created_at->diffForHumans() }}
-                                        </small>
-                                    </div>
+                                @auth
+                                    <button class="btn btn-link btn-sm text-primary p-0 text-decoration-none"
+                                            type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#replyForm{{ $comment->id }}">
+                                        <i class="bi bi-reply"></i> Balas
+                                    </button>
+                                @endauth
 
-                                    <p class="small mt-2 mb-0"
-                                       style="white-space: pre-line;">
-                                        {{ $reply->content }}
-                                    </p>
+                                {{-- Hapus komentar --}}
+                                @auth
+                                    @if (
+                                        (int) auth()->id() === (int) $comment->user_id
+                                        || auth()->user()->role === 'admin'
+                                    )
+                                        <form action="{{ route('forum.comments.destroy', $comment->id) }}"
+                                              method="POST"
+                                              onsubmit="return confirm('Hapus komentar ini beserta balasannya?')">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit"
+                                                    class="btn btn-link btn-sm text-danger p-0 text-decoration-none">
+                                                <i class="bi bi-trash"></i> Hapus
+                                            </button>
+                                        </form>
+                                    @endif
+                                @endauth
+
+                            </div>
+
+                            {{-- Form balasan --}}
+                            @auth
+                                <div class="collapse mt-3"
+                                     id="replyForm{{ $comment->id }}">
+
+                                    <form action="{{ route('forum.comments.store', $post->slug) }}"
+                                          method="POST">
+                                        @csrf
+
+                                        <input type="hidden"
+                                               name="parent_id"
+                                               value="{{ $comment->id }}">
+
+                                        <div class="input-group">
+                                            <input type="text"
+                                                   name="content"
+                                                   class="form-control"
+                                                   placeholder="Tulis balasan..."
+                                                   required
+                                                   minlength="2"
+                                                   maxlength="2000">
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-primary">
+                                                Kirim
+                                            </button>
+                                        </div>
+                                    </form>
+
                                 </div>
-                            @endforeach
+                            @endauth
+
+                            {{-- Daftar balasan --}}
+                            @if ($comment->replies->isNotEmpty())
+                                <div class="border-start border-3 border-primary ps-3 ms-2 mt-4">
+
+                                    @foreach ($comment->replies as $reply)
+
+                                        <div class="mb-3">
+
+                                            {{-- Informasi penulis balasan --}}
+                                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                <strong class="small">
+                                                    <i class="bi bi-person-circle me-1"></i>
+                                                    {{ $reply->user->name }}
+                                                </strong>
+
+                                                <small class="text-muted">
+                                                    {{ $reply->created_at->diffForHumans() }}
+                                                </small>
+                                            </div>
+
+                                            {{-- Isi balasan --}}
+                                            <p class="small mt-2 mb-2"
+                                               style="white-space: pre-line;">
+                                                {{ $reply->content }}
+                                            </p>
+
+                                            {{-- Hapus balasan --}}
+                                            @auth
+                                                @if (
+                                                    (int) auth()->id() === (int) $reply->user_id
+                                                    || auth()->user()->role === 'admin'
+                                                )
+                                                    <form action="{{ route('forum.comments.destroy', $reply->id) }}"
+                                                          method="POST"
+                                                          onsubmit="return confirm('Yakin ingin menghapus balasan ini?')">
+                                                        @csrf
+                                                        @method('DELETE')
+
+                                                        <button type="submit"
+                                                                class="btn btn-link btn-sm text-danger p-0 text-decoration-none">
+                                                            <i class="bi bi-trash"></i> Hapus
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            @endauth
+
+                                        </div>
+
+                                    @endforeach
+
+                                </div>
+                            @endif
 
                         </div>
                     </div>
+
                 @empty
+
                     <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center py-4">
+                        <div class="card-body text-center py-5">
+                            <i class="bi bi-chat-square-text fs-1 text-muted"></i>
+
+                            <h5 class="fw-semibold mt-3">
+                                Belum Ada Komentar
+                            </h5>
+
                             <p class="text-muted mb-0">
-                                Belum ada komentar. Jadilah yang pertama berdiskusi!
+                                Jadilah orang pertama yang memulai diskusi!
                             </p>
                         </div>
                     </div>
+
                 @endforelse
+
             </div>
 
-            {{-- Form komentar sementara --}}
+            {{-- Form komentar utama --}}
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <h5 class="fw-bold mb-3">Tulis Komentar</h5>
+
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-chat-left-text me-1"></i>
+                        Tulis Komentar
+                    </h5>
 
                     @auth
-                        <p class="text-muted small">
-                            Fitur pengiriman komentar akan kita aktifkan pada tahap berikutnya.
-                        </p>
+                        <form action="{{ route('forum.comments.store', $post->slug) }}"
+                              method="POST">
+                            @csrf
+
+                            <div class="mb-3">
+                                <textarea name="content"
+                                          rows="4"
+                                          class="form-control @error('content') is-invalid @enderror"
+                                          placeholder="Bagikan pendapat atau tanggapanmu..."
+                                          required
+                                          minlength="2"
+                                          maxlength="2000">{{ old('content') }}</textarea>
+
+                                @error('content')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <div class="text-end">
+                                <button type="submit"
+                                        class="btn btn-primary px-4">
+                                    <i class="bi bi-send me-1"></i>
+                                    Kirim Komentar
+                                </button>
+                            </div>
+                        </form>
                     @else
-                        <p class="text-muted">
-                            Silakan <a href="{{ route('login') }}">masuk</a>
-                            untuk ikut berdiskusi.
+                        <p class="text-muted mb-0">
+                            Kamu harus
+                            <a href="{{ route('login') }}">masuk</a>
+                            terlebih dahulu untuk ikut berdiskusi.
                         </p>
                     @endauth
+
                 </div>
             </div>
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ForumPostController;
+use App\Http\Controllers\ForumCommentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -37,6 +38,12 @@ Route::prefix('forum')->name('forum.')->group(function () {
 
         Route::delete('/{post:slug}', [ForumPostController::class, 'destroy'])
             ->name('posts.destroy');
+
+        Route::post('/{post:slug}/comments', [ForumCommentController::class, 'store'])
+            ->name('comments.store');
+
+        Route::delete('/comments/{comment}', [ForumCommentController::class, 'destroy'])
+            ->name('comments.destroy');
     });
 
     Route::get('/{post:slug}', [ForumPostController::class, 'show'])
