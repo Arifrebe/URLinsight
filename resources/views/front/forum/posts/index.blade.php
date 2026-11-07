@@ -106,7 +106,10 @@
 
                                 <div class="small text-muted">
                                     <span class="fw-semibold text-dark">
-                                        {{ $post->user->name }}
+                                        <a href="{{ route('forum.profile.show', $post->user->id) }}"
+                                            class="text-decoration-none">
+                                            {{ $post->user->name }}
+                                        </a>
                                     </span>
                                     <span class="mx-1">·</span>
                                     {{ $post->created_at->format('d M Y') }}

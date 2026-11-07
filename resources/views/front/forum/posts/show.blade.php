@@ -34,7 +34,9 @@
 
                         {{-- Penulis --}}
                         <div class="text-muted small mb-4">
-                            Oleh <strong class="text-dark">{{ $post->user->name }}</strong>
+                            Oleh <a href="{{ route('forum.profile.show', $post->user->id) }}" class="text-decoration-none">
+                                {{ $post->user->name }}
+                            </a>
                         </div>
 
                         <hr>

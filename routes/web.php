@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ForumPostController;
 use App\Http\Controllers\ForumCommentController;
 use App\Http\Controllers\ForumLikeController;
+use App\Http\Controllers\ForumProfileController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,6 +23,9 @@ Route::prefix('forum')->name('forum.')->group(function () {
 
     Route::get('/', [ForumPostController::class, 'index'])
         ->name('posts.index');
+    
+    Route::get('/pengguna/{user}', [ForumProfileController::class, 'show'])
+        ->name('profile.show');
 
     Route::middleware('auth')->group(function () {
 
