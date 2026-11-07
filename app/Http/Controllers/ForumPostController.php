@@ -12,18 +12,49 @@ class ForumPostController extends Controller
     /**
      * Menampilkan daftar diskusi.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $posts = ForumPost::with(['user', 'category'])
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'category' => ['nullable', 'integer', 'exists:forum_categories,id'],
+        ]);
+
+        $query = ForumPost::with(['user', 'category'])
             ->withCount(['comments', 'likes'])
             ->where(function ($query) {
-                $query->where('status', 'published')
-                    ->orWhere('user_id', auth()->id());
-            })
-            ->latest()
-            ->paginate(10);
+                $query->where('status', 'published');
 
-        return view('front.forum.posts.index', compact('posts'));
+                if (auth()->check()) {
+                    $query->orWhere('user_id', auth()->id());
+                }
+            });
+
+        // Pencarian berdasarkan judul atau isi
+        if (!empty($validated['search'])) {
+            $search = $validated['search'];
+
+            $query->where(function ($query) use ($search) {
+                $query->where('title', 'like', "%{$search}%")
+                    ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter berdasarkan kategori
+        if (!empty($validated['category'])) {
+            $query->where('category_id', $validated['category']);
+        }
+
+        $posts = $query
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        $categories = ForumCategory::orderBy('name')->get();
+
+        return view('front.forum.posts.index', compact(
+            'posts',
+            'categories'
+        ));
     }
 
     /**

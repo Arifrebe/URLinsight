@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ForumPostController;
 use App\Http\Controllers\ForumCommentController;
+use App\Http\Controllers\ForumLikeController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -44,6 +45,9 @@ Route::prefix('forum')->name('forum.')->group(function () {
 
         Route::delete('/comments/{comment}', [ForumCommentController::class, 'destroy'])
             ->name('comments.destroy');
+
+        Route::post('/{post:slug}/like', [ForumLikeController::class, 'toggle'])
+            ->name('likes.toggle');
     });
 
     Route::get('/{post:slug}', [ForumPostController::class, 'show'])
