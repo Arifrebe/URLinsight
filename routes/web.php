@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ForumPostController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -13,4 +14,31 @@ Route::prefix('auth')->group(function () {
     Route::get('register', [AuthController::class, 'register'])->name('register');
     Route::post('register', [AuthController::class, 'store']);
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+});
+
+Route::prefix('forum')->name('forum.')->group(function () {
+
+    Route::get('/', [ForumPostController::class, 'index'])
+        ->name('posts.index');
+
+    Route::middleware('auth')->group(function () {
+
+        Route::get('/buat', [ForumPostController::class, 'create'])
+            ->name('posts.create');
+
+        Route::post('/', [ForumPostController::class, 'store'])
+            ->name('posts.store');
+
+        Route::get('/{post:slug}/edit', [ForumPostController::class, 'edit'])
+            ->name('posts.edit');
+
+        Route::put('/{post:slug}', [ForumPostController::class, 'update'])
+            ->name('posts.update');
+
+        Route::delete('/{post:slug}', [ForumPostController::class, 'destroy'])
+            ->name('posts.destroy');
+    });
+
+    Route::get('/{post:slug}', [ForumPostController::class, 'show'])
+        ->name('posts.show');
 });
