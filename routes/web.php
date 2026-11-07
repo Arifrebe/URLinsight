@@ -7,7 +7,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::prefix('Auth')->group(function () {
+Route::prefix('auth')->group(function () {
     Route::get('login', [AuthController::class, 'login'])->name('login');
     Route::post('login', [AuthController::class, 'authenticate']);
     Route::get('register', [AuthController::class, 'register'])->name('register');
