@@ -7,6 +7,12 @@ use App\Http\Controllers\ForumCommentController;
 use App\Http\Controllers\ForumLikeController;
 use App\Http\Controllers\ForumProfileController;
 
+use App\Http\Controllers\Panel\PanelDashboardController;
+use App\Http\Controllers\Panel\ForumCategoryController;
+use App\Http\Controllers\Panel\ForumPostModerationController;
+use App\Http\Controllers\Panel\ForumCommentModerationController;
+use App\Http\Controllers\Panel\UserManagementController;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -56,4 +62,86 @@ Route::prefix('forum')->name('forum.')->group(function () {
 
     Route::get('/{post:slug}', [ForumPostController::class, 'show'])
         ->name('posts.show');
+});
+
+// Dashboard Admin
+Route::middleware('auth')->prefix('panel')->group(function () {
+    Route::get('/', [PanelDashboardController::class, 'index'])
+        ->name('panel.dashboard');
+
+    Route::get('/users', [UserManagementController::class, 'index'])
+    ->name('panel.users.index');
+
+    Route::get('/users/{user}', [UserManagementController::class, 'show'])
+    ->name('panel.users.show');
+
+    Route::patch('/users/{user}/deactivate', [UserManagementController::class,'deactivate'])
+    ->name('panel.users.deactivate');
+
+    Route::patch('/users/{user}/activate', [UserManagementController::class,'activate'])
+        ->name('panel.users.activate');
+});
+
+// Manajemen Forum Admin
+Route::middleware('auth')->prefix('panel/forum')->name('panel.forum.')->group(function () {
+    // Manajemen Kategori
+    Route::prefix('categories')->name('categories.')->group(function () {
+        Route::get('/', [ForumCategoryController::class, 'index'])
+            ->name('index');
+
+        Route::post('/', [ForumCategoryController::class, 'store'])
+            ->name('store');
+
+        Route::put('/{category}', [ForumCategoryController::class, 'update'])
+            ->name('update');
+
+        Route::delete('/{category}', [ForumCategoryController::class, 'destroy'])
+            ->name('destroy');
+    });
+
+    // Moderasi Postingan
+    Route::prefix('posts')->name('posts.')->group(function () {
+        Route::get('/', [ForumPostModerationController::class, 'index'])
+            ->name('index');
+
+        Route::patch('/{post}/status', [ForumPostModerationController::class, 'updateStatus'])
+            ->name('status');
+
+        Route::delete('/{post}', [ForumPostModerationController::class, 'destroy'])
+            ->name('destroy');
+
+        // Halaman Sampah
+        Route::get('/trash', [ForumPostModerationController::class, 'trash'])
+            ->name('trash');
+
+        // Restore postingan
+        Route::patch('/{post}/restore', [ForumPostModerationController::class, 'restore'])
+            ->withTrashed()
+            ->name('restore');
+        
+        // Force delete postingan
+        Route::delete('/{post}/force-delete', [ForumPostModerationController::class, 'forceDestroy'])
+            ->withTrashed()
+            ->name('force-destroy');
+    });
+
+    // Moderasi Komentar
+    Route::prefix('comments')->name('comments.')->group(function () {
+        Route::get('/', [ForumCommentModerationController::class, 'index'])
+            ->name('index');
+
+        Route::get('/trash', [ForumCommentModerationController::class, 'trash'])
+            ->name('trash');
+
+        Route::delete('/{comment}', [ForumCommentModerationController::class, 'destroy'])
+            ->name('destroy');
+
+        Route::patch('/{comment}/restore', [ForumCommentModerationController::class, 'restore'])
+            ->withTrashed()
+            ->name('restore');
+
+        Route::delete('/{comment}/force-delete', [ForumCommentModerationController::class,'forceDestroy'])
+            ->withTrashed()
+            ->name('force-destroy');
+    });
 });

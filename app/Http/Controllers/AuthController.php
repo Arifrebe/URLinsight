@@ -22,22 +22,35 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        // Hanya akun aktif yang boleh login
+        $credentials['is_active'] = true;
+
         // Proses autentikasi
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
 
             // Regenerate session untuk keamanan
             $request->session()->regenerate();
 
+            $user = Auth::user();
+
+            // Redirect berdasarkan role
+            if ($user->role === 'admin') {
+                return redirect()->intended('/panel')
+                    ->with('success', 'Selamat datang, Admin!');
+            }
+
             return redirect()->intended('/dashboard')
                 ->with('success', 'Berhasil login!');
         }
 
+        // Jika autentikasi gagal
         return back()
             ->withErrors([
-                'email' => 'Email atau password yang Anda masukkan salah.',
+                'email' => 'Email, password, atau status akun tidak valid.',
             ])
             ->onlyInput('email');
     }
+
 
     public function register()
     {
