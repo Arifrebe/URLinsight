@@ -37,12 +37,24 @@ class ForumProfileController extends Controller
             })
             ->count();
 
+        $activityScore = $totalPosts + $totalComments;
+
+        if ($activityScore >= 30) {
+            $reputation = 'Kontributor Aktif';
+        } elseif ($activityScore >= 10) {
+            $reputation = 'Anggota Aktif';
+        } else {
+            $reputation = 'Anggota Baru';
+        }
+
         return view('front.forum.profile.show', compact(
             'user',
             'posts',
             'comments',
             'totalPosts',
-            'totalComments'
+            'totalComments',
+            'activityScore',
+            'reputation'
         ));
     }
 }

@@ -33,10 +33,25 @@
                         </h2>
 
                         {{-- Penulis --}}
-                        <div class="text-muted small mb-4">
-                            Oleh <a href="{{ route('forum.profile.show', $post->user->id) }}" class="text-decoration-none">
-                                {{ $post->user->name }}
-                            </a>
+                        <div class="d-flex align-items-center gap-2">
+
+                            <div class="rounded-circle bg-primary text-white
+                d-flex align-items-center justify-content-center"
+                                style="width: 42px; height: 42px;">
+                                {{ strtoupper(substr($post->user->name, 0, 1)) }}
+                            </div>
+
+                            <div>
+                                <a href="{{ route('forum.profile.show', $post->user->id) }}"
+                                    class="fw-semibold text-decoration-none">
+                                    {{ $post->user->name }}
+                                </a>
+
+                                <div class="text-muted small">
+                                    {{ $post->created_at->diffForHumans() }}
+                                </div>
+                            </div>
+
                         </div>
 
                         <hr>

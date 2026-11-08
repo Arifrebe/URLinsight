@@ -104,15 +104,25 @@
                             {{-- Informasi penulis dan aktivitas --}}
                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
 
-                                <div class="small text-muted">
-                                    <span class="fw-semibold text-dark">
+                                <div class="d-flex align-items-center gap-2">
+
+                                    <div class="rounded-circle bg-primary text-white
+                d-flex align-items-center justify-content-center"
+                                        style="width: 35px; height: 35px; font-size: 14px;">
+                                        {{ strtoupper(substr($post->user->name, 0, 1)) }}
+                                    </div>
+
+                                    <div>
                                         <a href="{{ route('forum.profile.show', $post->user->id) }}"
-                                            class="text-decoration-none">
+                                            class="text-decoration-none fw-semibold">
                                             {{ $post->user->name }}
                                         </a>
-                                    </span>
-                                    <span class="mx-1">·</span>
-                                    {{ $post->created_at->format('d M Y') }}
+
+                                        <div class="text-muted small">
+                                            {{ $post->created_at->diffForHumans() }}
+                                        </div>
+                                    </div>
+
                                 </div>
 
                                 <div class="small text-muted">
