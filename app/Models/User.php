@@ -63,4 +63,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(ForumLike::class);
     }
+
+    public function scanHistories(): HasMany
+    {
+        return $this->hasMany(ScanHistory::class);
+    }
 }

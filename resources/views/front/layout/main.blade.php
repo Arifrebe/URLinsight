@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,6 +36,7 @@
 
     @stack('styles')
 </head>
+
 <body>
 
     <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
@@ -44,8 +45,7 @@
                 URL<span class="brand-highlight">insight</span>
             </a>
 
-            <button class="navbar-toggler" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -65,12 +65,17 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="btn btn-primary btn-sm px-3"
-                               href="{{ route('register') }}">
+                            <a class="btn btn-primary btn-sm px-3" href="{{ route('register') }}">
                                 Daftar
                             </a>
                         </li>
                     @else
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('scan.history') }}">
+                                Riwayat Scan
+                            </a>
+                        </li>
+                        
                         <li class="nav-item">
                             <span class="nav-link">
                                 Halo, {{ auth()->user()->name }}
@@ -108,4 +113,5 @@
 
     @stack('scripts')
 </body>
+
 </html>

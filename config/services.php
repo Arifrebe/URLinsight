@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'ml' => [
+        'url' => env('ML_API_URL'),
+        'token' => env('ML_API_TOKEN'),
+        'timeout' => (int) env('ML_API_TIMEOUT', 15),
+    ],
 ];

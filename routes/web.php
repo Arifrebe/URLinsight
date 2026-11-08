@@ -6,6 +6,7 @@ use App\Http\Controllers\ForumPostController;
 use App\Http\Controllers\ForumCommentController;
 use App\Http\Controllers\ForumLikeController;
 use App\Http\Controllers\ForumProfileController;
+use App\Http\Controllers\ScanController;
 
 use App\Http\Controllers\Panel\PanelDashboardController;
 use App\Http\Controllers\Panel\ForumCategoryController;
@@ -16,6 +17,22 @@ use App\Http\Controllers\Panel\UserManagementController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// URL Scanning
+Route::get('/scan', [ScanController::class, 'index'])
+    ->name('scan.index');
+
+Route::post('/scan', [ScanController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('scan.store');
+
+Route::get('/scan/{uuid}/result', [ScanController::class, 'result'])
+    ->middleware('signed')
+    ->name('scan.result');
+
+Route::get('/scan/history', [ScanController::class, 'history'])
+    ->middleware('auth')
+    ->name('scan.history');
 
 Route::prefix('auth')->group(function () {
     Route::get('login', [AuthController::class, 'login'])->name('login');
