@@ -12,6 +12,62 @@ class ScanControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_scan_fails_when_ml_returns_invalid_top_feature(): void
+    {
+        config([
+            'services.ml.url' => 'http://localhost:8001',
+            'services.ml.token' => 'testing-token',
+            'services.ml.timeout' => 15,
+        ]);
+
+        Http::fake([
+            '*' => Http::response([
+                'success' => true,
+                'data' => [
+                    'classification' => [
+                        'prediction' => 'phishing',
+                        'confidence' => 0.95,
+                    ],
+                    'analysis' => [
+                        'indicators' => [],
+                        'explanation' => [
+                            'method' => 'SHAP',
+                            'summary' => 'Contoh analisis.',
+                            'top_features' => [
+                                [
+                                    'name' => 'subdomain_count',
+                                    'value' => 3,
+                                    // contribution sengaja dihilangkan
+                                    'direction' => 'phishing',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'metadata' => [
+                        'model_version' => '1.0.0',
+                        'processing_time_ms' => 120,
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $user = User::factory()->create([
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('scan.store'), [
+                'url' => 'https://example.com',
+            ]);
+
+        $this->assertDatabaseHas('scan_histories', [
+            'url' => 'https://example.com',
+            'prediction' => null,
+            'status' => 'failed',
+            'error_code' => 'ML_SERVICE_ERROR',
+        ]);
+    }
+
     public function test_scan_fails_when_ml_returns_invalid_indicator(): void
     {
         config([
