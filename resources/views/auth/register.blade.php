@@ -1,46 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Register</title>
-</head>
-<body>
-	<h1>Register</h1>
+@extends('layouts.urlinsight')
 
-	<form method="POST" action="{{ route('register') }}">
-		@csrf
+@section('title', 'Daftar - URLinsight')
 
-		<div>
-			<label for="name">Name</label>
-			<input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus>
-			@error('name')
-				<span>{{ $message }}</span>
-			@enderror
-		</div>
+@section('content')
+    <section class="page-head">
+        <div class="container">
+            <span class="eyebrow">Akun</span>
+            <h1><span class="grad-text">Daftar</span> akun baru</h1>
+            <p>Buat akun untuk menyimpan riwayat pemeriksaan dan ikut forum diskusi.</p>
+        </div>
+    </section>
 
-		<div>
-			<label for="email">Email</label>
-			<input id="email" type="email" name="email" value="{{ old('email') }}" required>
-			@error('email')
-				<span>{{ $message }}</span>
-			@enderror
-		</div>
+    <div class="container checker-wrap">
+        <div class="glass panel auth-card">
 
-		<div>
-			<label for="password">Password</label>
-			<input id="password" type="password" name="password" required>
-			@error('password')
-				<span>{{ $message }}</span>
-			@enderror
-		</div>
+            <form method="POST" action="{{ route('register') }}" class="auth-form">
+                @csrf
 
-		<div>
-			<label for="password_confirmation">Confirm Password</label>
-			<input id="password_confirmation" type="password" name="password_confirmation" required>
-		</div>
+                <div class="field">
+                    <label for="name">Nama</label>
+                    <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus>
+                    @error('name')
+                        <span class="field-msg">{{ $message }}</span>
+                    @enderror
+                </div>
 
-		<button type="submit">Register</button>
-	</form>
-</body>
-</html>
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" required>
+                    @error('email')
+                        <span class="field-msg">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input id="password" type="password" name="password" required>
+                    @error('password')
+                        <span class="field-msg">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="field">
+                    <label for="password_confirmation">Konfirmasi Password</label>
+                    <input id="password_confirmation" type="password" name="password_confirmation" required>
+                </div>
+
+                <button type="submit" class="btn">Daftar</button>
+            </form>
+
+            <p class="form-hint">Sudah punya akun? <a href="{{ route('login') }}" class="link">Masuk di sini</a></p>
+        </div>
+    </div>
+@endsection

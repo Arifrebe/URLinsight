@@ -1,272 +1,132 @@
+@extends('layouts.urlinsight')
 
-@extends('front.layout.main')
+@section('title', 'Hasil Pemeriksaan - URLinsight')
 
-@section('title', 'Hasil Analisis - URLinsight')
+@php
+    $indicators = is_array($scan->indicators) ? $scan->indicators : (json_decode($scan->indicators ?? '[]', true) ?: []);
+    $explanation = is_array($scan->explanation) ? $scan->explanation : (json_decode($scan->explanation ?? '[]', true) ?: []);
+    $topFeatures = $explanation['top_features'] ?? [];
+    $isPhishing = $scan->prediction === 'phishing';
+@endphp
 
 @section('content')
-<section class="py-5">
-    <div class="container">
-
-        <div class="mb-4">
-            <a href="{{ route('scan.index') }}" class="text-decoration-none">
-                &larr; Analisis URL lainnya
-            </a>
+    <section class="page-head">
+        <div class="container">
+            <span class="eyebrow">Hasil Pemeriksaan</span>
+            <h1>Hasil <span class="grad-text">pemeriksaan</span></h1>
+            <p>URL yang diperiksa tidak dibuka oleh sistem.</p>
         </div>
+    </section>
 
-        <div class="text-center mb-5">
-            <h1 class="fw-bold">Hasil Analisis URL</h1>
-            <p class="text-secondary">
-                Berikut adalah hasil pemeriksaan URL menggunakan URLinsight.
-            </p>
-        </div>
+    <div class="container checker-wrap">
+        <div class="glass panel">
 
-        {{-- Informasi URL --}}
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <small class="text-secondary fw-semibold">URL YANG DIPERIKSA</small>
+            {{-- URL (teks biasa, bukan tautan) --}}
+            <span class="result-url">{{ $scan->url }}</span>
 
-                <div class="mt-2 fw-semibold text-break">
-                    {{ $scan->url }}
-                </div>
+            @if ($scan->status === 'completed' && in_array($scan->prediction, ['phishing', 'legitimate'], true))
 
-                <div class="text-secondary small mt-2">
-                    Domain: {{ $scan->domain ?? '-' }}
-                </div>
+                <div class="result-box {{ $isPhishing ? 'is-phishing' : 'is-ok' }}" style="margin-top:1rem">
+                    <div class="result-head">
+                        @if ($isPhishing)
+                            <span class="badge badge-danger">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5"/><path d="M12 18h.01"/></svg>
+                                Terindikasi Phishing
+                            </span>
+                        @else
+                            <span class="badge badge-ok">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
+                                Tidak ditemukan indikasi phishing
+                            </span>
+                        @endif
 
-                <div class="text-secondary small mt-1">
-                    Waktu pemindaian:
-                    {{ $scan->created_at->format('d M Y, H:i') }}
-                </div>
-            </div>
-        </div>
-
-        {{-- Status gagal --}}
-        @if ($scan->status === 'failed')
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-body p-4 text-center">
-                    <div class="mb-3">
-                        <span class="badge bg-warning text-dark px-3 py-2">
-                            Analisis Gagal
-                        </span>
+                        @if ($scan->confidence !== null)
+                            <span class="confidence">Tingkat keyakinan model: <b>{{ number_format($scan->confidence * 100, 0) }}%</b></span>
+                        @endif
                     </div>
 
-                    <h4 class="fw-bold">Belum Dapat Menganalisis URL</h4>
-
-                    <p class="text-secondary mb-0">
-                        Layanan analisis sedang mengalami kendala.
-                        Silakan coba kembali beberapa saat lagi.
+                    <h2>Penjelasan</h2>
+                    <p>
+                        @if ($isPhishing)
+                            Model mendeteksi indikasi phishing pada URL ini. Jangan membuka tautan ini atau mengisi data apa pun.
+                        @else
+                            Model tidak menemukan indikasi phishing pada URL ini. Tetap berhati-hati, hasil ini bukan jaminan tautan aman.
+                        @endif
                     </p>
+                    @if (!empty($explanation['summary']))
+                        <p>{{ $explanation['summary'] }}</p>
+                    @endif
                 </div>
-            </div>
 
-        {{-- Status pending --}}
-        @elseif ($scan->status === 'pending')
-            <div class="alert alert-info">
-                Pemindaian masih dalam proses. Silakan periksa kembali nanti.
-            </div>
-
-        {{-- Status completed --}}
-        @elseif ($scan->status === 'completed')
-
-            {{-- Hasil klasifikasi --}}
-            @if ($scan->prediction === 'phishing')
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-body p-4 text-center">
-                        <span class="badge bg-danger px-3 py-2 mb-3">
-                            Phishing
-                        </span>
-
-                        <h3 class="fw-bold text-danger">
-                            URL Terindikasi Phishing
-                        </h3>
-
-                        <p class="text-secondary mb-0">
-                            Model mendeteksi karakteristik URL yang
-                            mengindikasikan potensi phishing.
-                            Hindari memasukkan informasi sensitif pada situs ini.
-                        </p>
+                @if (count($indicators))
+                    <div class="section-head" style="margin-top:2rem">
+                        <h2>Indikator yang ditemukan</h2>
                     </div>
-                </div>
-
-            @elseif ($scan->prediction === 'legitimate')
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-body p-4 text-center">
-                        <span class="badge bg-success px-3 py-2 mb-3">
-                            Legitimate
-                        </span>
-
-                        <h3 class="fw-bold text-success">
-                            URL Diklasifikasikan Legitimate
-                        </h3>
-
-                        <p class="text-secondary mb-0">
-                            Model tidak menemukan indikasi phishing
-                            berdasarkan karakteristik yang dianalisis.
-                            Tetap berhati-hati sebelum memberikan informasi pribadi.
-                        </p>
-                    </div>
-                </div>
-
-            @else
-                <div class="alert alert-warning">
-                    Hasil klasifikasi tidak tersedia atau tidak dikenali.
-                </div>
-            @endif
-
-            {{-- Confidence --}}
-            @if ($scan->confidence !== null)
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-2">Confidence Model</h5>
-
-                        <h3 class="fw-bold text-primary">
-                            {{ number_format($scan->confidence * 100, 2) }}%
-                        </h3>
-
-                        <p class="text-secondary small mb-0">
-                            Nilai confidence menunjukkan tingkat keyakinan
-                            model terhadap prediksi, bukan jaminan bahwa
-                            URL tersebut benar-benar aman atau berbahaya.
-                        </p>
-                    </div>
-                </div>
-            @endif
-
-            {{-- Indikator --}}
-            @if (!empty($scan->indicators))
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-3">Indikator URL</h5>
-
-                        @foreach ($scan->indicators as $indicator)
-                            <div class="border rounded-3 p-3 mb-3">
-                                <div class="d-flex justify-content-between align-items-center gap-2">
-                                    <strong>
-                                        {{ $indicator['name'] ?? 'Indikator' }}
-                                    </strong>
-
-                                    @if (!empty($indicator['severity']))
-                                        <span class="badge bg-secondary">
-                                            {{ ucfirst($indicator['severity']) }}
-                                        </span>
-                                    @endif
+                    <div class="indicator-list">
+                        @foreach ($indicators as $indicator)
+                            <div class="indicator">
+                                <div class="indicator-top">
+                                    <b>{{ $indicator['name'] }}</b>
+                                    <span class="sev">{{ $indicator['severity'] }}</span>
                                 </div>
-
-                                <div class="mt-2">
-                                    <span class="text-secondary">Nilai:</span>
-                                    {{ is_array($indicator['value'] ?? null)
-                                        ? json_encode($indicator['value'])
-                                        : ($indicator['value'] ?? '-') }}
-                                </div>
-
-                                @if (!empty($indicator['description']))
-                                    <p class="text-secondary small mb-0 mt-1">
-                                        {{ $indicator['description'] }}
-                                    </p>
-                                @endif
+                                <p class="val">Nilai: {{ $indicator['value'] }}</p>
+                                <p>{{ $indicator['description'] }}</p>
+                                <p>{{ $indicator['interpretation'] }}</p>
                             </div>
                         @endforeach
                     </div>
-                </div>
-            @endif
+                @endif
 
-            {{-- Penjelasan model --}}
-            @if (!empty($scan->explanation))
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-3">Penjelasan Prediksi</h5>
-
-                        @if (!empty($scan->explanation['method']))
-                            <p class="small text-secondary">
-                                Metode:
-                                {{ $scan->explanation['method'] }}
-                            </p>
-                        @endif
-
-                        @if (!empty($scan->explanation['summary']))
-                            <p>
-                                {{ $scan->explanation['summary'] }}
-                            </p>
-                        @endif
-
-                        @if (!empty($scan->explanation['top_features']))
-                            <h6 class="fw-semibold mt-4">
-                                Faktor yang Memengaruhi Prediksi
-                            </h6>
-
-                            @foreach ($scan->explanation['top_features'] as $feature)
-                                <div class="border-bottom py-2">
-                                    <strong>
-                                        {{ $feature['name'] ?? 'Feature' }}
-                                    </strong>
-
-                                    <div class="small text-secondary">
-                                        Nilai:
-                                        {{ $feature['value'] ?? '-' }}
-
-                                        @if (isset($feature['contribution']))
-                                            | Kontribusi:
-                                            {{ $feature['contribution'] }}
-                                        @endif
-
-                                        @if (!empty($feature['direction']))
-                                            | Arah:
-                                            {{ $feature['direction'] }}
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
+                @if (count($topFeatures))
+                    <div class="section-head" style="margin-top:2rem">
+                        <h2>Faktor yang paling berpengaruh</h2>
+                        @if (!empty($explanation['method']))
+                            <p>Metode: {{ $explanation['method'] }}</p>
                         @endif
                     </div>
+                    <div class="indicator">
+                        @foreach ($topFeatures as $feature)
+                            <div class="feature-row">
+                                <b>{{ $feature['name'] }}</b>
+                                <span>Mengarah ke {{ $feature['direction'] === 'phishing' ? 'phishing' : 'tidak phishing' }} ({{ number_format($feature['contribution'], 3) }})</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <div class="meta">
+                    @if ($scan->model_version)<span>Versi model: {{ $scan->model_version }}</span>@endif
+                    @if ($scan->processing_time_ms !== null)<span>Waktu proses: {{ $scan->processing_time_ms }} ms</span>@endif
                 </div>
+
+            @elseif ($scan->status === 'failed')
+
+                <div class="result-box is-error" style="margin-top:1rem">
+                    <span class="badge badge-warn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5"/><path d="M12 18h.01"/></svg>
+                        Pemeriksaan belum berhasil
+                    </span>
+                    <h2>Layanan belum bisa dipakai</h2>
+                    <p>Pemeriksaan tidak dapat diselesaikan saat ini. Hasil ini bukan berarti URL aman. Coba lagi beberapa saat lagi.</p>
+                </div>
+
+            @else
+
+                <div class="result-box is-error" style="margin-top:1rem">
+                    <span class="badge badge-warn">Sedang diproses</span>
+                    <p style="margin-top:.8rem">Pemeriksaan masih berjalan. Muat ulang halaman ini beberapa saat lagi.</p>
+                </div>
+
             @endif
 
-            {{-- Metadata --}}
-            <div class="card border-0 shadow-sm rounded-4 mb-4">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold mb-3">Informasi Pemrosesan</h5>
+            <p class="note">Hasil model adalah indikasi, bukan jaminan keamanan.</p>
 
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <small class="text-secondary">Versi Model</small>
-                            <div class="fw-semibold">
-                                {{ $scan->model_version ?? '-' }}
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <small class="text-secondary">Waktu Pemrosesan</small>
-                            <div class="fw-semibold">
-                                {{ $scan->processing_time_ms !== null
-                                    ? $scan->processing_time_ms . ' ms'
-                                    : '-' }}
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <small class="text-secondary">Selesai Pada</small>
-                            <div class="fw-semibold">
-                                {{ $scan->completed_at
-                                    ? $scan->completed_at->format('d M Y, H:i')
-                                    : '-' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="hero-actions" style="margin-top:1.25rem">
+                <a href="{{ route('scan.index') }}" class="btn">Periksa URL Lain</a>
+                @auth
+                    <a href="{{ route('scan.history') }}" class="btn btn-ghost">Lihat Riwayat</a>
+                @endauth
             </div>
-
-        @else
-            <div class="alert alert-warning">
-                Status pemindaian tidak dikenali.
-            </div>
-        @endif
-
-        <div class="text-center mt-4">
-            <a href="{{ route('scan.index') }}" class="btn btn-primary px-4">
-                Analisis URL Lain
-            </a>
         </div>
-
     </div>
-</section>
 @endsection

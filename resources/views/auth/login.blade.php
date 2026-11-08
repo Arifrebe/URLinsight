@@ -1,45 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Login</title>
-</head>
-<body>
-	<main>
-		<h1>Login</h1>
+@extends('layouts.urlinsight')
 
-		@if (session('status'))
-			<p>{{ session('status') }}</p>
-		@endif
+@section('title', 'Masuk - URLinsight')
 
-		@if ($errors->any())
-			<ul>
-				@foreach ($errors->all() as $error)
-					<li>{{ $error }}</li>
-				@endforeach
-			</ul>
-		@endif
+@section('content')
+    <section class="page-head">
+        <div class="container">
+            <span class="eyebrow">Akun</span>
+            <h1><span class="grad-text">Masuk</span> ke URLinsight</h1>
+            <p>Masuk untuk menyimpan riwayat pemeriksaan dan ikut forum diskusi.</p>
+        </div>
+    </section>
 
-		<form method="POST" action="{{ route('login') }}">
-			@csrf
+    <div class="container checker-wrap">
+        <div class="glass panel auth-card">
 
-			<div>
-				<label for="email">Email</label>
-				<input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus>
-			</div>
+            @if (session('status'))
+                <p class="auth-status">{{ session('status') }}</p>
+            @endif
 
-			<div>
-				<label for="password">Password</label>
-				<input id="password" type="password" name="password" required>
-			</div>
+            @if ($errors->any())
+                <ul class="auth-errors" role="alert">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            @endif
 
-			<label>
-				<input type="checkbox" name="remember"> Remember me
-			</label>
+            <form method="POST" action="{{ route('login') }}" class="auth-form">
+                @csrf
 
-			<button type="submit">Login</button>
-		</form>
-	</main>
-</body>
-</html>
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus>
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input id="password" type="password" name="password" required>
+                </div>
+
+                <label class="remember">
+                    <input type="checkbox" name="remember"> Ingat saya
+                </label>
+
+                <button type="submit" class="btn">Masuk</button>
+            </form>
+
+            <p class="form-hint">Belum punya akun? <a href="{{ route('register') }}" class="link">Daftar di sini</a></p>
+        </div>
+    </div>
+@endsection

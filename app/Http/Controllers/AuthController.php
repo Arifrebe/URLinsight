@@ -39,8 +39,8 @@ class AuthController extends Controller
                     ->with('success', 'Selamat datang, Admin!');
             }
 
-            return redirect()->intended('/dashboard')
-                ->with('success', 'Berhasil login!');
+            return redirect()->intended('/')
+    ->with('success', 'Berhasil login!');
         }
 
         // Jika autentikasi gagal

@@ -16,11 +16,12 @@
                 URLinsight
             </a>
             <nav class="nav-links" aria-label="Navigasi utama">
-                <a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Beranda</a>
-                <a href="/periksa" class="{{ request()->is('periksa') ? 'active' : '' }}">URL Checker</a>
-                <a href="/evaluasi" class="{{ request()->is('evaluasi') ? 'active' : '' }}">Evaluasi Model</a>
-                <a href="/tentang" class="{{ request()->is('tentang') ? 'active' : '' }}">Tentang</a>
-            </nav>
+    <a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Beranda</a>
+    <a href="/scan" class="{{ request()->is('scan') ? 'active' : '' }}">URL Checker</a>
+    <a href="/scan/history" class="{{ request()->is('scan/history') ? 'active' : '' }}">Riwayat</a>
+    <a href="/evaluasi" class="{{ request()->is('evaluasi') ? 'active' : '' }}">Evaluasi Model</a>
+    <a href="/tentang" class="{{ request()->is('tentang') ? 'active' : '' }}">Tentang</a>
+</nav>
         </div>
     </header>
 
