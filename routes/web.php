@@ -162,3 +162,7 @@ Route::middleware('auth')->prefix('panel/forum')->name('panel.forum.')->group(fu
             ->name('force-destroy');
     });
 });
+
+Route::view('/periksa', 'periksa')->name('periksa');
+Route::view('/evaluasi', 'evaluasi')->name('evaluasi');
+Route::view('/tentang', 'tentang')->name('tentang');
