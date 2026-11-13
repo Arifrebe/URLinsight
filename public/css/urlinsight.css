@@ -359,3 +359,18 @@ a:focus-visible, .btn:focus-visible, input:focus-visible, button:focus-visible {
 .mini-comment { padding: .9rem 0; border-bottom: 1px solid var(--glass-border); }
 .mini-comment:last-child { border-bottom: 0; }
 .mini-comment p { margin: 0 0 .3rem; color: #E2E8F0; overflow-wrap: anywhere; }
+/* ===== Navbar responsif (menu HP) ===== */
+.navbar .nav-inner { flex-wrap: nowrap; }
+.nav-toggle { display: none; background: var(--glass); border: 1px solid var(--glass-border); color: #fff; width: 44px; height: 44px; border-radius: 12px; cursor: pointer; align-items: center; justify-content: center; }
+.nav-toggle svg { width: 22px; height: 22px; }
+.nav-menu { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: flex-end; }
+
+@media (max-width: 1100px) {
+    .nav-toggle { display: inline-flex; }
+    .navbar .nav-inner { flex-wrap: wrap; }
+    .nav-menu { display: none; width: 100%; flex-direction: column; align-items: stretch; gap: .8rem; padding: .8rem 0 .4rem; }
+    .nav-menu.open { display: flex; }
+    .nav-links { flex-direction: column; border-radius: 18px; }
+    .nav-links a { text-align: left; padding: .7rem 1rem; }
+    .nav-auth { justify-content: space-between; }
+}
