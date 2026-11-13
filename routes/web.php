@@ -163,6 +163,6 @@ Route::middleware('auth')->prefix('panel/forum')->name('panel.forum.')->group(fu
     });
 });
 
-Route::view('/periksa', 'periksa')->name('periksa');
+Route::redirect('/periksa', '/scan');
 Route::view('/evaluasi', 'evaluasi')->name('evaluasi');
 Route::view('/tentang', 'tentang')->name('tentang');
