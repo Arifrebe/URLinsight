@@ -374,3 +374,6 @@ a:focus-visible, .btn:focus-visible, input:focus-visible, button:focus-visible {
     .nav-links a { text-align: left; padding: .7rem 1rem; }
     .nav-auth { justify-content: space-between; }
 }
+@media (max-width: 600px) {
+    .eyebrow { border-radius: 14px; font-size: .72rem; letter-spacing: .06em; }
+}
