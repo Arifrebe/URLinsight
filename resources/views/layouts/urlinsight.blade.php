@@ -18,10 +18,26 @@
             <nav class="nav-links" aria-label="Navigasi utama">
     <a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Beranda</a>
     <a href="/scan" class="{{ request()->is('scan') ? 'active' : '' }}">URL Checker</a>
-    <a href="/scan/history" class="{{ request()->is('scan/history') ? 'active' : '' }}">Riwayat</a>
+    @auth
+        <a href="/scan/history" class="{{ request()->is('scan/history') ? 'active' : '' }}">Riwayat</a>
+    @endauth
+    <a href="/forum" class="{{ request()->is('forum*') ? 'active' : '' }}">Forum</a>
     <a href="/evaluasi" class="{{ request()->is('evaluasi') ? 'active' : '' }}">Evaluasi Model</a>
     <a href="/tentang" class="{{ request()->is('tentang') ? 'active' : '' }}">Tentang</a>
 </nav>
+
+<div class="nav-auth">
+    @auth
+        <span class="nav-user">{{ auth()->user()->name }}</span>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="btn btn-ghost btn-sm">Keluar</button>
+        </form>
+    @else
+        <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">Masuk</a>
+        <a href="{{ route('register') }}" class="btn btn-sm">Daftar</a>
+    @endauth
+</div>
         </div>
     </header>
 

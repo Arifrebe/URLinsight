@@ -265,3 +265,8 @@ a:focus-visible, .btn:focus-visible, input:focus-visible, button:focus-visible {
 .auth-status { margin: 0 0 1rem; padding: .8rem 1rem; border-radius: 14px; color: #A7F3D0; background: rgba(52,211,153,.14); border: 1px solid rgba(52,211,153,.45); font-size: .92rem; }
 .link { color: var(--cyan-400); }
 .field-msg { color: #FCA5A5; font-size: .85rem; }
+/* ===== Navbar: area akun ===== */
+.nav-auth { display: flex; align-items: center; gap: .6rem; }
+.nav-auth form { margin: 0; }
+.nav-user { color: var(--muted); font-size: .9rem; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.btn-sm { padding: .5rem 1.1rem; font-size: .9rem; }
