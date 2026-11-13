@@ -1,161 +1,87 @@
-@extends('front.layout.main')
+@extends('layouts.urlinsight')
+
+@section('title', $user->name . ' - Profil Forum URLinsight')
 
 @section('content')
-    <div class="container py-4">
+    <section class="page-head">
+        <div class="container">
+            <a href="{{ route('forum.posts.index') }}" class="back-link">&larr; Kembali ke Forum</a>
+        </div>
+    </section>
 
+    <div class="container checker-wrap">
 
-        {{-- Informasi Profil --}}
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-
-                <div class="d-flex align-items-center gap-3">
-
-                    {{-- Avatar otomatis --}}
-                    <div class="rounded-circle bg-primary text-white
-                        d-flex align-items-center justify-content-center
-                        flex-shrink-0"
-                        style="width: 75px; height: 75px; font-size: 30px;">
-                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                    </div>
-
-                    <div>
-                        <h4 class="mb-1">{{ $user->name }}</h4>
-
-                        <span class="badge bg-primary-subtle text-primary">
-                            {{ $reputation }}
-                        </span>
-
-                        <div class="text-muted small mt-2">
-                            <i class="bi bi-people"></i>
-                            Anggota komunitas URLinsight
-                        </div>
-                    </div>
-
+        {{-- Informasi profil --}}
+        <div class="glass panel" style="margin-bottom:1.25rem">
+            <div class="profile-head">
+                <div class="avatar-sm avatar-lg">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                <div>
+                    <h2>{{ $user->name }}</h2>
+                    <span class="cat-badge">{{ $reputation }}</span>
+                    <div class="profile-sub">Anggota komunitas URLinsight</div>
                 </div>
+            </div>
 
-                <hr>
-
-                {{-- Statistik --}}
-                <div class="row text-center">
-
-                    <div class="col-4">
-                        <h4 class="mb-0">{{ $totalPosts }}</h4>
-                        <small class="text-muted">Postingan</small>
-                    </div>
-
-                    <div class="col-4">
-                        <h4 class="mb-0">{{ $totalComments }}</h4>
-                        <small class="text-muted">Komentar</small>
-                    </div>
-
-                    <div class="col-4">
-                        <h4 class="mb-0">{{ $activityScore }}</h4>
-                        <small class="text-muted">Kontribusi</small>
-                    </div>
-
-                </div>
-
+            <div class="profile-stats">
+                <div><b>{{ $totalPosts }}</b><span>Postingan</span></div>
+                <div><b>{{ $totalComments }}</b><span>Komentar</span></div>
+                <div><b>{{ $activityScore }}</b><span>Kontribusi</span></div>
             </div>
         </div>
 
+        <div class="forum-layout">
 
-        <div class="row g-4">
+            {{-- Postingan --}}
+            <div class="glass panel">
+                <h3 style="margin:0 0 .5rem">Postingan {{ $user->name }}</h3>
 
-            {{-- Daftar Postingan --}}
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0">Postingan {{ $user->name }}</h5>
+                @forelse ($posts as $post)
+                    <div class="profile-post">
+                        <span class="cat-badge">{{ $post->category->name }}</span>
+                        <h3><a href="{{ route('forum.posts.show', $post->slug) }}">{{ $post->title }}</a></h3>
+                        <p>{{ \Illuminate\Support\Str::limit(strip_tags($post->content), 150) }}</p>
+                        <div class="profile-meta">
+                            {{ $post->created_at->format('d M Y') }}
+                            · {{ $post->comments_count }} komentar
+                            · {{ $post->likes_count }} suka
+                        </div>
                     </div>
-
-                    <div class="card-body">
-                        @forelse ($posts as $post)
-                            <div class="mb-4">
-                                <span class="badge bg-light text-primary">
-                                    {{ $post->category->name }}
-                                </span>
-
-                                <h5 class="mt-2">
-                                    <a href="{{ route('forum.posts.show', $post->slug) }}"
-                                        class="text-decoration-none text-dark">
-                                        {{ $post->title }}
-                                    </a>
-                                </h5>
-
-                                <p class="text-muted">
-                                    {{ Str::limit(strip_tags($post->content), 150) }}
-                                </p>
-
-                                <small class="text-muted">
-                                    <i class="bi bi-calendar3"></i>
-                                    {{ $post->created_at->format('d M Y') }}
-
-                                    &nbsp;·&nbsp;
-
-                                    <i class="bi bi-chat"></i>
-                                    {{ $post->comments_count }} komentar
-
-                                    &nbsp;·&nbsp;
-
-                                    <i class="bi bi-heart"></i>
-                                    {{ $post->likes_count }} like
-                                </small>
-                            </div>
-
-                            @if (!$loop->last)
-                                <hr>
-                            @endif
-                        @empty
-                            <div class="text-center py-4">
-                                <i class="bi bi-journal-x fs-1 text-muted"></i>
-                                <p class="text-muted mt-2 mb-0">
-                                    Pengguna ini belum memiliki postingan.
-                                </p>
-                            </div>
-                        @endforelse
-
-                        {{ $posts->links() }}
+                @empty
+                    <div class="empty">
+                        <p>Pengguna ini belum memiliki postingan.</p>
                     </div>
-                </div>
+                @endforelse
+
+                @if ($posts->hasPages())
+                    <div class="pager">
+                        @if ($posts->previousPageUrl())
+                            <a href="{{ $posts->previousPageUrl() }}" class="btn btn-ghost btn-sm">Sebelumnya</a>
+                        @else
+                            <span></span>
+                        @endif
+                        @if ($posts->nextPageUrl())
+                            <a href="{{ $posts->nextPageUrl() }}" class="btn btn-ghost btn-sm">Berikutnya</a>
+                        @endif
+                    </div>
+                @endif
             </div>
 
-            {{-- Aktivitas Komentar --}}
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0">Komentar Terbaru</h5>
+            {{-- Komentar terbaru --}}
+            <aside class="glass panel">
+                <h3 style="margin:0 0 .5rem">Komentar Terbaru</h3>
+
+                @forelse ($comments as $comment)
+                    <div class="mini-comment">
+                        <p>{{ \Illuminate\Support\Str::limit($comment->content, 100) }}</p>
+                        <a href="{{ route('forum.posts.show', $comment->post->slug) }}" class="link" style="font-size:.88rem">Lihat diskusi</a>
+                        <div class="profile-meta">{{ $comment->created_at->diffForHumans() }}</div>
                     </div>
-
-                    <div class="card-body">
-                        @forelse ($comments as $comment)
-                            <div class="mb-3">
-                                <p class="mb-1">
-                                    {{ Str::limit($comment->content, 100) }}
-                                </p>
-
-                                <a href="{{ route('forum.posts.show', $comment->post->slug) }}"
-                                    class="small text-decoration-none">
-                                    Lihat diskusi
-                                    <i class="bi bi-arrow-up-right"></i>
-                                </a>
-
-                                <div class="text-muted small mt-1">
-                                    {{ $comment->created_at->diffForHumans() }}
-                                </div>
-                            </div>
-
-                            @if (!$loop->last)
-                                <hr>
-                            @endif
-                        @empty
-                            <p class="text-muted text-center mb-0">
-                                Belum ada aktivitas komentar.
-                            </p>
-                        @endforelse
+                @empty
+                    <div class="empty">
+                        <p>Belum ada aktivitas komentar.</p>
                     </div>
-                </div>
-            </div>
-
+                @endforelse
+            </aside>
         </div>
     </div>
 @endsection

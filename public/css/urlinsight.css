@@ -341,3 +341,21 @@ a:focus-visible, .btn:focus-visible, input:focus-visible, button:focus-visible {
 @media (min-width: 960px) {
     .forum-layout { grid-template-columns: 2fr 1fr; }
 }
+/* ===== Profil forum ===== */
+.profile-head { display: flex; flex-wrap: wrap; align-items: center; gap: 1.1rem; }
+.avatar-lg { width: 80px; height: 80px; font-size: 2rem; }
+.profile-head h2 { margin: 0 0 .4rem; font-size: 1.6rem; }
+.profile-sub { color: var(--muted); font-size: .88rem; margin-top: .5rem; }
+.profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--glass-border); text-align: center; }
+.profile-stats b { display: block; font-size: 1.7rem; line-height: 1.2; }
+.profile-stats span { color: var(--muted); font-size: .85rem; }
+.profile-post { padding: 1.1rem 0; border-bottom: 1px solid var(--glass-border); }
+.profile-post:last-of-type { border-bottom: 0; }
+.profile-post h3 { margin: .5rem 0 .3rem; font-size: 1.1rem; }
+.profile-post h3 a { color: #fff; text-decoration: none; }
+.profile-post h3 a:hover { color: var(--cyan-400); }
+.profile-post p { margin: 0 0 .5rem; color: var(--muted); }
+.profile-meta { color: var(--muted); font-size: .82rem; }
+.mini-comment { padding: .9rem 0; border-bottom: 1px solid var(--glass-border); }
+.mini-comment:last-child { border-bottom: 0; }
+.mini-comment p { margin: 0 0 .3rem; color: #E2E8F0; overflow-wrap: anywhere; }
